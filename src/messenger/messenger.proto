@@ -1,0 +1,117 @@
+syntax = "proto3";
+
+package messenger;
+
+service Messenger {
+   rpc initialize_client(Empty) returns (InitializeResponse) {}
+   rpc send_message(Message) returns (Empty) {}
+   rpc poll_message(User) returns (stream Message) {}
+   rpc join_chatroom(JoinChatroomRequest) returns (JoinChatroomResponse) {}
+   rpc leave_chatroom(LeaveChatroomRequest) returns (Empty) {}
+   rpc create_chatroom(CreateChatroomRequest) returns (Chatroom) {}
+   rpc get_chatrooms(Empty) returns (ChatroomList) {}
+}
+
+// Message
+// Used for sending a message with send_message() (client to server)
+// Used for sending messages with poll_message() (server to client)
+//
+// int32 chatroomId -> chatroomID of the chatroom this message was sent in
+// int32 index -> index of the message in the chat history of the chatroom
+// User user -> user the message was sent from
+// string message -> the message to send
+message Message {
+  int32 chatroomId = 1;
+  int32 index = 2;
+  User user = 3;
+  string message = 4;
+}
+
+// User
+// Used for User info and identification
+// Used for sending messages with poll_message(), this allows the server to know details of the requester
+//
+// int32 id -> unique id of the user
+// string name -> display name of the user
+// int32 chatroomId -> chatroomId that the user is currently in. -1 if not in chatroom
+// int32 chatIndex -> index of the last viewed chat in the current chatroom
+message User {
+    int32 id = 1;
+    string name = 2;
+    int32 chatroomId = 3;
+    int32 chatIndex = 4;
+}
+
+// Chatroom
+// Used for Chatroom info and identification
+//
+// int32 id -> unique id of the chatroom
+// string name -> display name of the chatroom
+// int32 capacity -> maximum capacity of the chatroom (always 5)
+// repeated User users -> list of users in the chatroom
+// repeated Message chats -> chat list of the chatroom
+message Chatroom {
+    int32 id = 1;
+    string name = 2;
+    int32 capacity = 3;
+    repeated User users = 4;
+    repeated Message chats = 5;
+}
+
+// Chatroom
+// Used for join_chatroom() (requesting to join chatroom)
+//
+// int32 chatroomId -> chatroom id of the chatroom to join
+// User user -> user to join the chatroom
+message JoinChatroomRequest {
+    int32 chatroomId = 1;
+    User user = 2;
+}
+
+// JoinChatroomResponse
+// Used for join_chatroom() (response to join chatroom)
+//
+// int32 chatroomId -> chatroom id of the chatroom to join. -1 if chatroom requested does not exit. 0 if chatroom is full
+// string chatroomName = 2; -> name of chatroom to join
+message JoinChatroomResponse {
+    int32 chatroomId = 1;
+    string chatroomName = 2;
+}
+
+// ChatroomList
+// Used for get_chatrooms() (response to get chatrooms)
+//
+// repeated Chatroom chatrooms -> list of chatrooms in the server
+message ChatroomList {
+    repeated Chatroom chatrooms = 1;
+}
+
+// InitializeResponse
+// Used for initialize_client() (returns unique id for new client)
+//
+// int32 id -> unique id for the new client
+message InitializeResponse {
+    int32 id = 1;
+}
+
+// LeaveChatroomRequest
+// Used for leave_chatroom() (requesting to leave chatroom)
+//
+// int32 chatroomId -> id of the chatroom to leave
+// User user -> user object of the user leaving the chatroom
+message LeaveChatroomRequest {
+    int32 chatroomId = 1;
+    User user = 2;
+}
+
+// CreateChatroomRequest
+// Used for create_chatroom (requesting to create chatroom)
+//
+// string chatroomName -> display name of the chatroom to create
+message CreateChatroomRequest {
+    string chatroomName = 1;
+}
+
+// Empty
+// Empty message for methods with no response
+message Empty {}
