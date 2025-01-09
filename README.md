@@ -41,7 +41,7 @@ given a unique ID.
 
 
 ### Chatroom Commands:
-    - :leave -> Leave the current chatroom. This command may only the used in a chatroom
+- :leave -> Leave the current chatroom. This command may only the used in a chatroom
 and allows the user to return to the Client Portal.
 
 
